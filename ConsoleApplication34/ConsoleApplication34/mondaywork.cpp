@@ -7,7 +7,7 @@
 #include "math.h"
 #include<algorithm>
 #include<Windows.h>
-
+#include<vector>
 const int width = 1180;
 const int height = 490;
 
@@ -30,7 +30,53 @@ void drawLine(const int& i0, const int& j0, const int& i1, const int& j1, const 
 	}
 }
 
-
+double getRandouble(const double min, const double max) {
+	double temp = ((double)rand()) / (double)RAND_MAX;
+	temp = min + (max - min)*temp;
+	return temp;
+}
+void drawrectanline(const int x, const int y, const int r, const float& red, const float& green, const float& blue)
+{
+	int x_c = x;
+	int y_c = y;
+	for (int a = 0; a <= 2 * r; a++)
+	{
+		for (int b = 0; b <= 2 * r; b++)
+		{
+			{
+				drawPixel(x - r + b, y - r + a, red, green, blue);
+			}
+		}
+	}
+	int g = (int)r *0.9;
+	for (int a = 0; a <= 2 * g; a++)
+	{
+		for (int b = 0; b <= 2 * g; b++)
+		{
+			{
+				drawPixel(x - g + b, y - g + a, 255, 255, 255);
+			}
+		}
+	}
+}
+bool isinsideCircle(const double x, const double y, const double x_c , const double y_c , const double r_c ) {
+	double f = (x - x_c)*(x - x_c) + (y - y_c)* (y - y_c) - r_c*r_c;
+	if (f <= 0)
+		return true;
+	else return false;
+}
+void drawcircle(const int x, const int y, const int r)
+{
+	for (int i = 0; i <= 360; i++) {
+		drawPixel(x + r * cos(i), y + r * sin(i), 255, -255, -255);
+	}
+}
+void colorcircle(const int x, const int y, const int r)
+{
+	for (int i = 0; i <= 360; i++) {
+		drawPixel(x + r * cos(i), y + r * sin(i), 0, 0, 0);
+	}
+}
 
 void drawOnPixelBuffer()
 {
@@ -63,6 +109,40 @@ void drawOnPixelBuffer()
 	drawpenta(600, 550, 550, 650, 650, 720, 750, 650, 700, 550, 255, 0, 0);*/
 }
 
+class DrawInCircle
+{
+public:
+	void draw()
+	{
+		drawcircle(500,300,50);
+	}
+};
+
+class DrawBox
+{
+public:
+	void draw()
+	{
+		drawrectanline(200, 155, 100, 255, 255, 0);
+	}
+};
+class GeometricObjectInterface
+{
+public:
+	virtual void draw() = 0;
+};
+
+template<class T_HOW_TO_DRAW>
+class GeometricObject : public GeometricObjectInterface
+
+{
+public:
+	void draw()
+	{
+		T_HOW_TO_DRAW draw_in_color;
+		draw_in_color.draw();
+	}
+};
 int main(void)
 {
 	 GLFWwindow* window;
@@ -86,7 +166,13 @@ int main(void)
 		glfwMakeContextCurrent(window);
 		// while background
 
-   
+   //register double x, y;
+   //for (int i = 0; i < 10000; i++) {
+   //	x = getRandouble(0, 1.0);
+   //	y = getRandouble(0, 1.0);
+   //	if (isinsideCircle(x, y))
+   //		drawPixel(x, y, 1, 0, 0);
+   //}
 								 /* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{	
@@ -104,7 +190,19 @@ int main(void)
 				printf("%f, %f\n", xpos, ypos);
 
 				
-				
+
+
+				std::vector<GeometricObjectInterface*> obj_list;
+				obj_list.push_back(new GeometricObject<DrawInCircle>);
+				obj_list.push_back(new GeometricObject<DrawBox>);
+
+				for (auto itr : obj_list)
+				{
+					itr->draw();
+				}
+
+
+
 			//TODO: RGB struct
 			//Make a pixel drawing function
 			//Make a line drawing function
